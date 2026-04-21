@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>虚拟定位打卡</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --primary-glow: rgba(99,102,241,0.35);
+            --primary-light: #EEF2FF;
+            --primary-gradient: linear-gradient(135deg, #6366F1, #8B5CF6);
+            --success: #10B981;
+            --success-dark: #059669;
+            --success-gradient: linear-gradient(135deg, #10B981, #34D399);
+            --danger: #F43F5E;
+            --danger-light: #FFE4E6;
+            --warning: #F59E0B;
+            --text: #0F172A;
+            --text-secondary: #64748B;
+            --text-tertiary: #94A3B8;
+            --bg: #F1F5F9;
+            --card: #FFFFFF;
+            --card-glass: rgba(255,255,255,0.82);
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow: 0 8px 32px rgba(0,0,0,0.08);
+            --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
+            --shadow-primary: 0 8px 24px rgba(99,102,241,0.25);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-xs: 8px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== 顶部栏 ===== */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000; padding: 14px 16px;
+            display: flex; gap: 10px; align-items: center;
+            pointer-events: none;
+        }
+        .header > * { pointer-events: auto; }
+
+        .search-box {
+            flex: 1; display: flex; align-items: center;
+            background: var(--card-glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 28px; padding: 0 18px; height: 48px;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+        .search-box:focus-within {
+            box-shadow: var(--shadow-lg), 0 0 0 3px var(--primary-glow);
+            border-color: var(--primary);
+        }
+        .search-box svg { width: 18px; height: 18px; color: var(--text-tertiary); flex-shrink: 0; }
+        .search-box input {
+            flex: 1; border: none; outline: none; font-size: 14px; font-weight: 500;
+            padding: 0 12px; color: var(--text); background: transparent;
+            font-family: inherit;
+        }
+        .search-box input::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+        .btn-icon {
+            width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.6);
+            background: var(--card-glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.25s ease; flex-shrink: 0;
+        }
+        .btn-icon:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+        .btn-icon:active { transform: scale(0.95); }
+        .btn-icon svg { width: 20px; height: 20px; color: var(--text); transition: color 0.2s; }
+        .btn-icon.active-mode {
+            background: var(--primary-gradient); border-color: transparent;
+            box-shadow: var(--shadow-primary);
+        }
+        .btn-icon.active-mode svg { color: white; }
+
+        /* ===== 地图 ===== */
+        #map { width: 100%; height: 100vh; z-index: 1; }
+
+        /* 自定义 Leaflet 控件样式 */
+        .leaflet-control-zoom { border: none !important; box-shadow: var(--shadow) !important; border-radius: 14px !important; overflow: hidden; }
+        .leaflet-control-zoom a {
+            background: var(--card-glass) !important;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            color: var(--text) !important; border: none !important;
+            width: 40px !important; height: 40px !important; line-height: 40px !important;
+            font-size: 18px !important; font-weight: 600 !important;
+            transition: background 0.2s !important;
+        }
+        .leaflet-control-zoom a:hover { background: var(--primary-light) !important; color: var(--primary) !important; }
+        .leaflet-control-attribution { display: none; }
+
+        /* ===== 底部面板通用 ===== */
+        .bottom-panel, .draw-panel {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000;
+            background: var(--card);
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -8px 40px rgba(0,0,0,0.1);
+            padding: 8px 20px 20px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bottom-panel.hidden { transform: translateY(110%); }
+        .draw-panel.hidden { transform: translateY(110%); }
+
+        .panel-handle {
+            width: 40px; height: 4px; background: var(--border);
+            border-radius: 2px; margin: 6px auto 16px;
+        }
+
+        /* ===== 选点面板 ===== */
+        .coord-info { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+        .coord-icon {
+            width: 46px; height: 46px; border-radius: 14px;
+            background: var(--primary-gradient);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.25);
+        }
+        .coord-icon svg { width: 22px; height: 22px; color: white; }
+        .coord-detail { flex: 1; min-width: 0; }
+        .coord-address {
+            font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .coord-latlng {
+            font-size: 12px; color: var(--text-tertiary); margin-top: 3px;
+            font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-copy {
+            padding: 7px 14px; border-radius: var(--radius-xs);
+            border: 1px solid var(--border); background: var(--card);
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            cursor: pointer; white-space: nowrap; transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-copy:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+
+        .action-row { display: flex; gap: 10px; }
+        .btn-checkin {
+            flex: 1; height: 52px; border-radius: 16px; border: none;
+            background: var(--primary-gradient); color: white;
+            font-size: 16px; font-weight: 700; letter-spacing: 0.02em;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: var(--shadow-primary);
+            transition: all 0.25s ease; font-family: inherit;
+        }
+        .btn-checkin:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(99,102,241,0.35); }
+        .btn-checkin:active { transform: scale(0.98); }
+        .btn-checkin svg { width: 20px; height: 20px; }
+
+        .btn-fav {
+            width: 52px; height: 52px; border-radius: 16px;
+            border: 1px solid var(--border); background: var(--card);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s ease;
+        }
+        .btn-fav:hover { background: #FFFBEB; border-color: var(--warning); transform: translateY(-1px); }
+        .btn-fav:active { transform: scale(0.95); }
+        .btn-fav svg { width: 22px; height: 22px; color: var(--warning); }
+
+        /* ===== 绘制面板 ===== */
+        .draw-stats {
+            display: flex; gap: 8px; margin-bottom: 14px; padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .draw-stat {
+            flex: 1; text-align: center; padding: 10px 4px;
+            background: var(--bg); border-radius: var(--radius-sm);
+        }
+        .draw-stat .label {
+            font-size: 10px; font-weight: 600; color: var(--text-tertiary);
+            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;
+        }
+        .draw-stat .value {
+            font-size: 22px; font-weight: 800; color: var(--text);
+            letter-spacing: -0.02em; line-height: 1;
+        }
+        .draw-stat .unit { font-size: 11px; font-weight: 500; color: var(--text-tertiary); }
+
+        .draw-speed-row {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 14px; padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .draw-speed-row label {
+            font-size: 13px; font-weight: 600; color: var(--text-secondary); white-space: nowrap;
+        }
+        /* 自定义滑块 */
+        .draw-speed-row input[type=range] {
+            flex: 1; -webkit-appearance: none; appearance: none;
+            height: 6px; border-radius: 3px;
+            background: linear-gradient(to right, var(--primary), #A78BFA);
+            outline: none;
+        }
+        .draw-speed-row input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: white; border: 3px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+            cursor: pointer; transition: transform 0.15s;
+        }
+        .draw-speed-row input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        .draw-speed-row .speed-val {
+            font-size: 15px; font-weight: 700; color: var(--primary);
+            font-family: 'SF Mono', 'Cascadia Code', monospace;
+            min-width: 68px; text-align: right;
+        }
+
+        .draw-actions { display: flex; gap: 8px; }
+        .draw-btn {
+            flex: 1; height: 46px; border-radius: 14px;
+            border: 1px solid var(--border); background: var(--card);
+            font-size: 13px; font-weight: 600; color: var(--text);
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.25s ease; font-family: inherit;
+        }
+        .draw-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+        .draw-btn:active { transform: scale(0.97); }
+        .draw-btn svg { width: 16px; height: 16px; }
+        .draw-btn.primary {
+            background: var(--primary-gradient); color: white; border-color: transparent;
+            box-shadow: var(--shadow-primary);
+        }
+        .draw-btn.success {
+            background: var(--success-gradient); color: white; border-color: transparent;
+            box-shadow: 0 8px 24px rgba(16,185,129,0.25);
+        }
+        .draw-btn.danger { color: var(--danger); border-color: var(--danger-light); }
+        .draw-btn.danger:hover { background: #FFF1F2; }
+
+        /* ===== 侧边抽屉 ===== */
+        .drawer-overlay {
+            position: fixed; inset: 0; background: rgba(15,23,42,0.4); z-index: 2000;
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            opacity: 0; visibility: hidden; transition: all 0.35s;
+        }
+        .drawer-overlay.active { opacity: 1; visibility: visible; }
+
+        .drawer {
+            position: fixed; top: 0; right: 0; width: 88vw; max-width: 420px;
+            height: 100vh; background: var(--bg); z-index: 2001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+            box-shadow: -16px 0 48px rgba(0,0,0,0.12);
+        }
+        .drawer.active { transform: translateX(0); }
+
+        .drawer-header {
+            padding: 20px 24px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            background: var(--card);
+            border-bottom: 1px solid var(--border-light);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .drawer-header h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+        .drawer-close {
+            width: 36px; height: 36px; border-radius: 50%; border: none;
+            background: var(--bg); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .drawer-close:hover { background: var(--danger-light); }
+        .drawer-close svg { width: 18px; height: 18px; color: var(--text-secondary); }
+
+        .drawer-tabs {
+            display: flex; background: var(--card); padding: 0 16px;
+            border-bottom: 1px solid var(--border-light); gap: 4px;
+        }
+        .drawer-tab {
+            flex: 1; padding: 14px 8px; border: none; background: transparent;
+            font-size: 13px; font-weight: 600; color: var(--text-tertiary);
+            cursor: pointer; position: relative; transition: color 0.2s;
+            font-family: inherit;
+        }
+        .drawer-tab.active { color: var(--primary); }
+        .drawer-tab.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 16%; right: 16%;
+            height: 3px; background: var(--primary-gradient); border-radius: 3px 3px 0 0;
+        }
+
+        .drawer-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+        .record-card {
+            background: var(--card); border-radius: var(--radius);
+            padding: 16px; margin-bottom: 10px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all 0.2s;
+        }
+        .record-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+        .record-time {
+            font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+            margin-bottom: 6px; letter-spacing: 0.02em;
+        }
+        .record-address { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .record-coord {
+            font-size: 11px; color: var(--text-tertiary);
+            font-family: 'SF Mono', 'Cascadia Code', monospace;
+        }
+        .record-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .record-btn {
+            padding: 5px 12px; border-radius: var(--radius-xs);
+            border: 1px solid var(--border); background: var(--card);
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .record-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+        .record-btn.delete { color: var(--danger); border-color: var(--danger-light); }
+        .record-btn.delete:hover { background: #FFF1F2; }
+
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 60px 20px; color: var(--text-tertiary);
+        }
+        .empty-state svg { width: 56px; height: 56px; color: var(--border); margin-bottom: 16px; opacity: 0.6; }
+        .empty-state p { font-size: 14px; font-weight: 500; }
+
+        /* ===== 路线管理 ===== */
+        .route-actions-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+        .route-action-btn {
+            flex: 1; padding: 14px 8px; border-radius: var(--radius);
+            border: 2px dashed var(--border); background: var(--card);
+            font-size: 12px; font-weight: 600; color: var(--text-secondary);
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
+            transition: all 0.25s; font-family: inherit;
+        }
+        .route-action-btn:hover {
+            border-color: var(--primary); color: var(--primary);
+            background: var(--primary-light); transform: translateY(-1px);
+        }
+        .route-action-btn svg { width: 22px; height: 22px; color: var(--primary); }
+
+        /* ===== Toast ===== */
+        .checkin-toast {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: rgba(15,23,42,0.9);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            color: white; padding: 28px 48px; border-radius: 24px; z-index: 3000;
+            opacity: 0; visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+        }
+        .checkin-toast.show {
+            opacity: 1; visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .checkin-toast svg { width: 52px; height: 52px; margin-bottom: 10px; }
+        .checkin-toast .toast-icon-success { color: var(--success); }
+        .checkin-toast p { font-size: 17px; font-weight: 700; letter-spacing: 0.02em; }
+
+        /* ===== 预览条 ===== */
+        .preview-bar {
+            position: fixed; top: 76px; left: 16px; right: 16px; z-index: 1000;
+            background: var(--card-glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 18px; box-shadow: var(--shadow-lg);
+            padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .preview-bar.hidden { opacity: 0; visibility: hidden; transform: translateY(-24px); }
+
+        .preview-pulse {
+            width: 10px; height: 10px; border-radius: 50%; background: var(--danger);
+            animation: pulse 1.5s ease-in-out infinite; flex-shrink: 0;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .preview-info { flex: 1; }
+        .preview-info .title { font-size: 13px; font-weight: 700; color: var(--text); }
+        .preview-info .detail {
+            font-size: 11px; color: var(--text-secondary);
+            font-family: 'SF Mono', 'Cascadia Code', monospace; margin-top: 2px;
+        }
+        .preview-stop {
+            padding: 8px 18px; border-radius: var(--radius-sm); border: none;
+            background: var(--danger); color: white;
+            font-size: 13px; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(244,63,94,0.3);
+        }
+        .preview-stop:hover { transform: translateY(-1px); }
+
+        /* ===== 响应式 ===== */
+        @media (min-width: 768px) {
+            .drawer { width: 420px; }
+            .bottom-panel, .draw-panel {
+                left: 50%; transform: translateX(-50%); width: 520px;
+                border-radius: 24px 24px 0 0;
+            }
+            .bottom-panel.hidden, .draw-panel.hidden { transform: translateX(-50%) translateY(110%); }
+        }
+
+        #file-import { display: none; }
+
+        /* ===== 滚动条 ===== */
+        .drawer-body::-webkit-scrollbar { width: 4px; }
+        .drawer-body::-webkit-scrollbar-track { background: transparent; }
+        .drawer-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<!-- ===== 顶部栏 ===== -->
+<div class="header">
+    <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="输入经纬度跳转 (如: 120.73,30.52)" />
+    </div>
+    <button class="btn-icon" id="btn-draw" title="绘制路线">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>
+        </svg>
+    </button>
+    <button class="btn-icon" id="btn-records" title="记录与路线">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/>
+        </svg>
+    </button>
+</div>
+
+<!-- ===== 地图 ===== -->
+<div id="map"></div>
+
+<!-- ===== 预览动画条 ===== -->
+<div class="preview-bar hidden" id="preview-bar">
+    <div class="preview-pulse"></div>
+    <div class="preview-info">
+        <div class="title">路线预览中</div>
+        <div class="detail" id="preview-detail">距离: 0m | 用时: 0s</div>
+    </div>
+    <button class="preview-stop" id="preview-stop">停止</button>
+</div>
+
+<!-- ===== 底部面板 - 选点模式 ===== -->
+<div class="bottom-panel" id="panel-locate">
+    <div class="panel-handle"></div>
+    <div class="coord-info">
+        <div class="coord-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+        </div>
+        <div class="coord-detail">
+            <div class="coord-address" id="current-address">点击地图选择位置</div>
+            <div class="coord-latlng" id="current-latlng">经度: --  |  纬度: --</div>
+        </div>
+        <button class="btn-copy" id="btn-copy">复制</button>
+    </div>
+    <div class="action-row">
+        <button class="btn-checkin" id="btn-checkin">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            一键打卡
+        </button>
+        <button class="btn-fav" id="btn-fav" title="收藏此位置">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- ===== 底部面板 - 绘制模式 ===== -->
+<div class="draw-panel hidden" id="panel-draw">
+    <div class="panel-handle"></div>
+    <div class="draw-stats">
+        <div class="draw-stat">
+            <div class="label">路线点数</div>
+            <div><span class="value" id="draw-points">0</span></div>
+        </div>
+        <div class="draw-stat">
+            <div class="label">总距离</div>
+            <div><span class="value" id="draw-distance">0</span><span class="unit"> m</span></div>
+        </div>
+        <div class="draw-stat">
+            <div class="label">预计用时</div>
+            <div><span class="value" id="draw-time">0:00</span></div>
+        </div>
+    </div>
+    <div class="draw-speed-row">
+        <label>速度</label>
+        <input type="range" id="draw-speed" min="1" max="10" step="0.1" value="3.3" />
+        <div class="speed-val"><span id="draw-speed-val">3.3</span> m/s</div>
+    </div>
+    <div class="draw-actions">
+        <button class="draw-btn" id="draw-undo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+            撤销
+        </button>
+        <button class="draw-btn danger" id="draw-clear">清空</button>
+        <button class="draw-btn primary" id="draw-preview">预览</button>
+        <button class="draw-btn success" id="draw-save">保存</button>
+    </div>
+</div>
+
+<!-- ===== 侧边抽屉 ===== -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">
+        <h2>管理</h2>
+        <button class="drawer-close" id="drawer-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+    </div>
+    <div class="drawer-tabs">
+        <button class="drawer-tab active" data-tab="records">打卡记录</button>
+        <button class="drawer-tab" data-tab="favorites">收藏位置</button>
+        <button class="drawer-tab" data-tab="routes">路线管理</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="checkin-toast" id="checkin-toast">
+    <svg class="toast-icon-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+    <p id="toast-msg">打卡成功</p>
+</div>
+
+<input type="file" id="file-import" accept=".txt,.json" />
+
+<script>
+// ============================================================
+//  坐标转换 (从 iOSRealRun run.py 移植)
+// ============================================================
+const CoordUtil = (() => {
+    const PI = 3.141592653589793238462643383;
+    const X_PI = PI * 3000.0 / 180.0;
+    const A = 6378245.0;
+    const EE = 0.00669342162296594323;
+
+    function transformLat(x, y) {
+        let r = -100 + 2*x + 3*y + 0.2*y*y + 0.1*x*y + 0.2*Math.sqrt(Math.abs(x));
+        r += (20*Math.sin(6*x*PI) + 20*Math.sin(2*x*PI)) * 2/3;
+        r += (20*Math.sin(y*PI) + 40*Math.sin(y/3*PI)) * 2/3;
+        r += (160*Math.sin(y/12*PI) + 320*Math.sin(y*PI/30)) * 2/3;
+        return r;
+    }
+    function transformLng(x, y) {
+        let r = 300 + x + 2*y + 0.1*x*x + 0.1*x*y + 0.1*Math.sqrt(Math.abs(x));
+        r += (20*Math.sin(6*x*PI) + 20*Math.sin(2*x*PI)) * 2/3;
+        r += (20*Math.sin(x*PI) + 40*Math.sin(x/3*PI)) * 2/3;
+        r += (150*Math.sin(x/12*PI) + 300*Math.sin(x/30*PI)) * 2/3;
+        return r;
+    }
+
+    function bd09ToGcj02(lng, lat) {
+        const x = lng - 0.0065, y = lat - 0.006;
+        const z = Math.sqrt(x*x + y*y) - 0.00002 * Math.sin(y * X_PI);
+        const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * X_PI);
+        return { lng: z * Math.cos(theta), lat: z * Math.sin(theta) };
+    }
+    function gcj02ToBd09(lng, lat) {
+        const z = Math.sqrt(lng*lng + lat*lat) + 0.00002 * Math.sin(lat * X_PI);
+        const theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * X_PI);
+        return { lng: z * Math.cos(theta) + 0.0065, lat: z * Math.sin(theta) + 0.006 };
+    }
+    function gcj02ToWgs84(lng, lat) {
+        let dLat = transformLat(lng - 105, lat - 35);
+        let dLng = transformLng(lng - 105, lat - 35);
+        const radLat = lat / 180 * PI;
+        let magic = Math.sin(radLat);
+        magic = 1 - EE * magic * magic;
+        const sqrtMagic = Math.sqrt(magic);
+        dLat = (dLat * 180) / ((A * (1 - EE)) / (magic * sqrtMagic) * PI);
+        dLng = (dLng * 180) / (A / sqrtMagic * Math.cos(radLat) * PI);
+        return { lng: lng - dLng, lat: lat - dLat };
+    }
+    function bd09ToWgs84(lng, lat) {
+        const gcj = bd09ToGcj02(lng, lat);
+        return gcj02ToWgs84(gcj.lng, gcj.lat);
+    }
+    function wgs84ToGcj02(lng, lat) {
+        let dLat = transformLat(lng - 105, lat - 35);
+        let dLng = transformLng(lng - 105, lat - 35);
+        const radLat = lat / 180 * PI;
+        let magic = Math.sin(radLat);
+        magic = 1 - EE * magic * magic;
+        const sqrtMagic = Math.sqrt(magic);
+        dLat = (dLat * 180) / ((A * (1 - EE)) / (magic * sqrtMagic) * PI);
+        dLng = (dLng * 180) / (A / sqrtMagic * Math.cos(radLat) * PI);
+        return { lng: lng + dLng, lat: lat + dLat };
+    }
+    function distance(p1, p2) {
+        const R = 6371000;
+        const dLat = (p2.lat - p1.lat) * PI / 180;
+        const dLng = (p2.lng - p1.lng) * PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(p1.lat*PI/180)*Math.cos(p2.lat*PI/180)*Math.sin(dLng/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+    function routeDistance(points) {
+        let d = 0;
+        for (let i = 1; i < points.length; i++) d += distance(points[i-1], points[i]);
+        return d;
+    }
+    return { bd09ToGcj02, gcj02ToBd09, gcj02ToWgs84, bd09ToWgs84, wgs84ToGcj02, distance, routeDistance };
+})();
+
+// ============================================================
+//  状态
+// ============================================================
+const state = {
+    mode: 'locate',
+    currentLng: null, currentLat: null,
+    activeTab: 'records',
+    map: null, marker: null,
+    drawPoints: [], drawMarkers: [], drawPolyline: null, drawSpeed: 3.3,
+    previewTimer: null, previewMarker: null,
+};
+
+// ============================================================
+//  本地存储
+// ============================================================
+function getStore(key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } }
+function setStore(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function getRecords() { return getStore('ck_records'); }
+function saveRecords(r) { setStore('ck_records', r); }
+function getFavorites() { return getStore('ck_favs'); }
+function saveFavorites(f) { setStore('ck_favs', f); }
+function getRoutes() { return getStore('ck_routes'); }
+function saveRoutes(r) { setStore('ck_routes', r); }
+
+// ============================================================
+//  地图初始化
+// ============================================================
+function initMap() {
+    const defaultCenter = { lng: 120.0878, lat: 30.3058 }; // 浙江大学紫金港校区操场
+    state.map = L.map('map', {
+        center: [defaultCenter.lat, defaultCenter.lng],
+        zoom: 16, zoomControl: false
+    });
+    L.control.zoom({ position: 'bottomright' }).addTo(state.map);
+
+    // 使用 CartoDB Positron 风格瓦片 (更现代简洁)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20,
+        subdomains: 'abcd'
+    }).addTo(state.map);
+
+    state.map.on('click', onMapClick);
+}
+
+function onMapClick(e) {
+    const { lat, lng } = e.latlng;
+    if (state.mode === 'locate') setLocation(lng, lat);
+    else addDrawPoint(lng, lat);
+}
+
+function setLocation(lng, lat) {
+    state.currentLng = lng;
+    state.currentLat = lat;
+
+    if (state.marker) state.marker.setLatLng([lat, lng]);
+    else {
+        const icon = L.divIcon({
+            html: `<div style="width:18px;height:18px;background:linear-gradient(135deg,#6366F1,#8B5CF6);border:3px solid white;border-radius:50%;box-shadow:0 3px 12px rgba(99,102,241,0.4)"></div>`,
+            iconSize: [18, 18], iconAnchor: [9, 9], className: ''
+        });
+        state.marker = L.marker([lat, lng], { icon }).addTo(state.map);
+    }
+
+    document.getElementById('current-address').textContent = 'WGS-84 坐标位置';
+    document.getElementById('current-latlng').textContent = `经度: ${lng.toFixed(6)}  |  纬度: ${lat.toFixed(6)}`;
+}
+
+// ============================================================
+//  搜索
+// ============================================================
+document.getElementById('search-input').addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const parts = e.target.value.trim().split(/[,，\s]+/).map(Number);
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        state.map.setView([parts[1], parts[0]], 16);
+        setLocation(parts[0], parts[1]);
+        e.target.blur();
+    }
+});
+
+// ============================================================
+//  模式切换
+// ============================================================
+function setMode(mode) {
+    state.mode = mode;
+    document.getElementById('btn-draw').classList.toggle('active-mode', mode === 'draw');
+    document.getElementById('panel-locate').classList.toggle('hidden', mode === 'draw');
+    document.getElementById('panel-draw').classList.toggle('hidden', mode !== 'draw');
+    if (mode === 'draw' && state.marker) { state.map.removeLayer(state.marker); state.marker = null; }
+}
+document.getElementById('btn-draw').addEventListener('click', () => {
+    setMode(state.mode === 'draw' ? 'locate' : 'draw');
+});
+
+// ============================================================
+//  路线绘制
+// ============================================================
+function addDrawPoint(lng, lat) {
+    state.drawPoints.push({ lng, lat });
+    const idx = state.drawPoints.length;
+    const isStart = idx === 1;
+    const marker = L.circleMarker([lat, lng], {
+        radius: isStart ? 9 : 5,
+        color: 'white', weight: 2,
+        fillColor: isStart ? '#10B981' : '#6366F1',
+        fillOpacity: 1
+    }).addTo(state.map);
+    if (isStart) marker.bindTooltip('起点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+    state.drawMarkers.push(marker);
+    updateDrawPolyline();
+    updateDrawStats();
+}
+
+function updateDrawPolyline() {
+    if (state.drawPolyline) state.map.removeLayer(state.drawPolyline);
+    if (state.drawPoints.length < 2) return;
+    const latlngs = state.drawPoints.map(p => [p.lat, p.lng]);
+    state.drawPolyline = L.polyline(latlngs, {
+        color: '#6366F1', weight: 4, opacity: 0.85,
+        lineJoin: 'round', lineCap: 'round'
+    }).addTo(state.map);
+}
+
+function updateDrawStats() {
+    const n = state.drawPoints.length;
+    const dist = CoordUtil.routeDistance(state.drawPoints);
+    const time = dist / state.drawSpeed;
+    const min = Math.floor(time / 60), sec = Math.floor(time % 60);
+    document.getElementById('draw-points').textContent = n;
+    document.getElementById('draw-distance').textContent = dist < 1000 ? Math.round(dist) : (dist/1000).toFixed(2) + 'k';
+    document.getElementById('draw-time').textContent = `${min}:${String(sec).padStart(2,'0')}`;
+}
+
+const speedSlider = document.getElementById('draw-speed');
+const speedVal = document.getElementById('draw-speed-val');
+speedSlider.addEventListener('input', () => {
+    state.drawSpeed = parseFloat(speedSlider.value);
+    speedVal.textContent = state.drawSpeed.toFixed(1);
+    updateDrawStats();
+});
+
+document.getElementById('draw-undo').addEventListener('click', () => {
+    if (!state.drawPoints.length) return;
+    state.drawPoints.pop();
+    const m = state.drawMarkers.pop();
+    if (m) state.map.removeLayer(m);
+    updateDrawPolyline(); updateDrawStats();
+});
+
+document.getElementById('draw-clear').addEventListener('click', () => {
+    if (!state.drawPoints.length) return;
+    state.drawPoints = [];
+    state.drawMarkers.forEach(m => state.map.removeLayer(m));
+    state.drawMarkers = [];
+    if (state.drawPolyline) { state.map.removeLayer(state.drawPolyline); state.drawPolyline = null; }
+    updateDrawStats();
+});
+
+document.getElementById('draw-save').addEventListener('click', () => {
+    if (state.drawPoints.length < 2) { alert('至少需要2个路线点'); return; }
+    const name = prompt('路线名称:', `路线 ${new Date().toLocaleDateString('zh-CN')}`);
+    if (!name) return;
+    const routes = getRoutes();
+    routes.unshift({
+        id: Date.now(), name,
+        points: state.drawPoints.map(p => ({ lng: p.lng, lat: p.lat })),
+        speed: state.drawSpeed,
+        distance: Math.round(CoordUtil.routeDistance(state.drawPoints)),
+        createdAt: new Date().toLocaleString('zh-CN')
+    });
+    saveRoutes(routes);
+    showToast('路线已保存');
+});
+
+// ============================================================
+//  路线预览动画
+// ============================================================
+function startPreview(points, speed) {
+    stopPreview();
+    if (points.length < 2) return;
+    document.getElementById('preview-bar').classList.remove('hidden');
+
+    const dt = 0.2;
+    const interpolated = [];
+    for (let i = 0; i < points.length - 1; i++) {
+        const a = points[i], b = points[i + 1];
+        const d = CoordUtil.distance(a, b);
+        const steps = Math.max(1, Math.round(d / (speed * dt)));
+        for (let j = 0; j < steps; j++) {
+            const t = j / steps;
+            interpolated.push({ lng: a.lng + (b.lng - a.lng) * t, lat: a.lat + (b.lat - a.lat) * t });
+        }
+    }
+    interpolated.push(points[points.length - 1]);
+
+    const icon = L.divIcon({
+        html: '<div style="width:16px;height:16px;background:#F43F5E;border:3px solid white;border-radius:50%;box-shadow:0 3px 10px rgba(244,63,94,0.4)"></div>',
+        iconSize: [16, 16], iconAnchor: [8, 8], className: ''
+    });
+    state.previewMarker = L.marker([interpolated[0].lat, interpolated[0].lng], { icon }).addTo(state.map);
+
+    let idx = 0;
+    const totalDist = CoordUtil.routeDistance(points);
+    const startTime = Date.now();
+
+    state.previewTimer = setInterval(() => {
+        idx++;
+        if (idx >= interpolated.length) { stopPreview(); return; }
+        const p = interpolated[idx];
+        state.previewMarker.setLatLng([p.lat, p.lng]);
+        const elapsed = (Date.now() - startTime) / 1000;
+        const coveredDist = Math.round(totalDist * idx / interpolated.length);
+        const min = Math.floor(elapsed / 60), sec = Math.floor(elapsed % 60);
+        document.getElementById('preview-detail').textContent =
+            `距离: ${coveredDist}m  |  用时: ${min}:${String(sec).padStart(2,'0')}  |  ${speed}m/s`;
+    }, dt * 1000);
+}
+
+function stopPreview() {
+    if (state.previewTimer) { clearInterval(state.previewTimer); state.previewTimer = null; }
+    if (state.previewMarker) { state.map.removeLayer(state.previewMarker); state.previewMarker = null; }
+    document.getElementById('preview-bar').classList.add('hidden');
+}
+
+document.getElementById('draw-preview').addEventListener('click', () => {
+    if (state.drawPoints.length < 2) { alert('至少需要2个路线点'); return; }
+    startPreview(state.drawPoints, state.drawSpeed);
+});
+document.getElementById('preview-stop').addEventListener('click', stopPreview);
+
+// ============================================================
+//  打卡 / 收藏 / 复制
+// ============================================================
+function doCheckin() {
+    if (state.currentLng === null) { alert('请先在地图上选择一个位置'); return; }
+    const records = getRecords();
+    records.unshift({ id: Date.now(), time: new Date().toLocaleString('zh-CN'), lng: state.currentLng, lat: state.currentLat });
+    saveRecords(records);
+    showToast('打卡成功');
+}
+
+function showToast(msg) {
+    document.getElementById('toast-msg').textContent = msg;
+    const t = document.getElementById('checkin-toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+function addFavorite() {
+    if (state.currentLng === null) { alert('请先在地图上选择一个位置'); return; }
+    const name = prompt('位置名称:', '');
+    if (!name) return;
+    const favs = getFavorites();
+    favs.unshift({ id: Date.now(), name, lng: state.currentLng, lat: state.currentLat });
+    saveFavorites(favs);
+    showToast('已收藏');
+}
+
+function copyCoord() {
+    if (state.currentLng === null) return;
+    const text = `${state.currentLng.toFixed(6)},${state.currentLat.toFixed(6)}`;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = '已复制'; setTimeout(() => btn.textContent = '复制', 1500);
+    }).catch(() => {
+        const ta = document.createElement('textarea'); ta.value = text;
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = '已复制'; setTimeout(() => btn.textContent = '复制', 1500);
+    });
+}
+
+// ============================================================
+//  路线导入 / 导出
+// ============================================================
+function importRoute(content, fileName) {
+    try {
+        const points = JSON.parse('[' + content + ']');
+        const wgsPoints = points.map(p => {
+            const w = CoordUtil.bd09ToWgs84(parseFloat(p.lng), parseFloat(p.lat));
+            return { lng: w.lng, lat: w.lat };
+        });
+        const routes = getRoutes();
+        routes.unshift({
+            id: Date.now(), name: fileName || `导入 ${new Date().toLocaleString('zh-CN')}`,
+            points: wgsPoints,
+            pointsBd09: points.map(p => ({ lng: parseFloat(p.lng), lat: parseFloat(p.lat) })),
+            speed: 3.3,
+            distance: Math.round(CoordUtil.routeDistance(wgsPoints)),
+            createdAt: new Date().toLocaleString('zh-CN'), imported: true
+        });
+        saveRoutes(routes);
+        displayRoute(wgsPoints);
+        showToast('路线导入成功');
+    } catch (err) { alert('路线文件格式错误: ' + err.message); }
+}
+
+document.getElementById('file-import').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => importRoute(reader.result, file.name);
+    reader.readAsText(file);
+    e.target.value = '';
+});
+
+function displayRoute(points, skipFit) {
+    state.drawMarkers.forEach(m => state.map.removeLayer(m));
+    state.drawMarkers = [];
+    if (state.drawPolyline) { state.map.removeLayer(state.drawPolyline); state.drawPolyline = null; }
+    if (!points.length) return;
+
+    const latlngs = points.map(p => [p.lat, p.lng]);
+    state.drawPolyline = L.polyline(latlngs, {
+        color: '#6366F1', weight: 4, opacity: 0.85,
+        lineJoin: 'round', lineCap: 'round'
+    }).addTo(state.map);
+
+    const startM = L.circleMarker([points[0].lat, points[0].lng], {
+        radius: 9, color: 'white', weight: 2, fillColor: '#10B981', fillOpacity: 1
+    }).addTo(state.map).bindTooltip('起点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+    state.drawMarkers.push(startM);
+
+    if (points.length > 1) {
+        const end = points[points.length - 1];
+        const endM = L.circleMarker([end.lat, end.lng], {
+            radius: 9, color: 'white', weight: 2, fillColor: '#F43F5E', fillOpacity: 1
+        }).addTo(state.map).bindTooltip('终点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+        state.drawMarkers.push(endM);
+    }
+
+    if (!skipFit) state.map.fitBounds(L.polyline(latlngs).getBounds(), { padding: [80, 80] });
+    state.drawPoints = points;
+    updateDrawStats();
+}
+
+function exportRoute(route) {
+    let bd09Points;
+    if (route.pointsBd09) { bd09Points = route.pointsBd09; }
+    else {
+        bd09Points = route.points.map(p => {
+            const gcj = CoordUtil.wgs84ToGcj02(p.lng, p.lat);
+            return CoordUtil.gcj02ToBd09(gcj.lng, gcj.lat);
+        });
+    }
+    const content = bd09Points.map(p => `{"lng":"${p.lng}","lat":"${p.lat}"}`).join(',');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = (route.name || 'route').replace(/[^\w\u4e00-\u9fa5]/g, '_') + '.txt';
+    a.click(); URL.revokeObjectURL(a.href);
+}
+
+function exportConfig(route) {
+    const fn = (route.name || 'route').replace(/[^\w\u4e00-\u9fa5]/g, '_') + '.txt';
+    const content = `v: ${route.speed || 3.3}\nrouteConfig: "${fn}"\nlibimobiledeviceDir: "libimobiledevice"\nimageDir: "DeveloperDiskImage"\n`;
+    const blob = new Blob([content], { type: 'text/yaml' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'config.yaml';
+    a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ============================================================
+//  抽屉
+// ============================================================
+function openDrawer() {
+    document.getElementById('drawer').classList.add('active');
+    document.getElementById('drawer-overlay').classList.add('active');
+    renderDrawerContent();
+}
+function closeDrawer() {
+    document.getElementById('drawer').classList.remove('active');
+    document.getElementById('drawer-overlay').classList.remove('active');
+}
+function switchTab(tab) {
+    state.activeTab = tab;
+    document.querySelectorAll('.drawer-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    renderDrawerContent();
+}
+
+function renderDrawerContent() {
+    const body = document.getElementById('drawer-body');
+    if (state.activeTab === 'records') {
+        const records = getRecords();
+        if (!records.length) { body.innerHTML = emptyHtml('暂无打卡记录'); return; }
+        body.innerHTML = records.map(r => `
+            <div class="record-card">
+                <div class="record-time">${r.time}</div>
+                <div class="record-coord">${r.lng.toFixed(6)}, ${r.lat.toFixed(6)}</div>
+                <div class="record-actions">
+                    <button class="record-btn" onclick="gotoPoint(${r.lng},${r.lat})">定位</button>
+                    <button class="record-btn delete" onclick="delRecord(${r.id})">删除</button>
+                </div>
+            </div>`).join('');
+    } else if (state.activeTab === 'favorites') {
+        const favs = getFavorites();
+        if (!favs.length) { body.innerHTML = emptyHtml('暂无收藏位置'); return; }
+        body.innerHTML = favs.map(f => `
+            <div class="record-card">
+                <div class="record-address">${f.name}</div>
+                <div class="record-coord">${f.lng.toFixed(6)}, ${f.lat.toFixed(6)}</div>
+                <div class="record-actions">
+                    <button class="record-btn" onclick="gotoPoint(${f.lng},${f.lat})">定位</button>
+                    <button class="record-btn delete" onclick="delFav(${f.id})">删除</button>
+                </div>
+            </div>`).join('');
+    } else if (state.activeTab === 'routes') { renderRoutesTab(body); }
+}
+
+function renderRoutesTab(body) {
+    const routes = getRoutes();
+    let html = `<div class="route-actions-bar">
+        <button class="route-action-btn" onclick="document.getElementById('file-import').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            导入路线
+        </button>
+        <button class="route-action-btn" onclick="exportCurrentDraw()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+            导出当前
+        </button></div>`;
+    if (!routes.length) { html += emptyHtml('暂无保存的路线'); }
+    else {
+        html += routes.map(r => `
+            <div class="record-card">
+                <div class="record-address">${r.name}</div>
+                <div class="record-time">${r.createdAt}  |  ${r.distance}m  |  ${r.speed || 3.3}m/s</div>
+                <div class="record-actions">
+                    <button class="record-btn" onclick="loadRoute(${r.id})">加载</button>
+                    <button class="record-btn" onclick="previewRoute(${r.id})">预览</button>
+                    <button class="record-btn" onclick="dlRoute(${r.id})">导出txt</button>
+                    <button class="record-btn" onclick="dlConfig(${r.id})">config</button>
+                    <button class="record-btn delete" onclick="delRoute(${r.id})">删除</button>
+                </div>
+            </div>`).join('');
+    }
+    body.innerHTML = html;
+}
+
+function emptyHtml(msg) {
+    return `<div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+        </svg><p>${msg}</p></div>`;
+}
+
+// ============================================================
+//  全局操作
+// ============================================================
+function gotoPoint(lng, lat) { closeDrawer(); setMode('locate'); state.map.setView([lat, lng], 16); setLocation(lng, lat); }
+function delRecord(id) { saveRecords(getRecords().filter(r => r.id !== id)); renderDrawerContent(); }
+function delFav(id) { saveFavorites(getFavorites().filter(f => f.id !== id)); renderDrawerContent(); }
+function delRoute(id) { saveRoutes(getRoutes().filter(r => r.id !== id)); renderDrawerContent(); }
+
+function loadRoute(id) {
+    const route = getRoutes().find(r => r.id === id);
+    if (!route) return;
+    closeDrawer(); setMode('draw'); displayRoute(route.points);
+    state.drawSpeed = route.speed || 3.3;
+    speedSlider.value = state.drawSpeed; speedVal.textContent = state.drawSpeed.toFixed(1);
+    updateDrawStats();
+}
+function previewRoute(id) {
+    const route = getRoutes().find(r => r.id === id);
+    if (!route) return;
+    closeDrawer(); displayRoute(route.points);
+    startPreview(route.points, route.speed || 3.3);
+}
+function dlRoute(id) { const r = getRoutes().find(r => r.id === id); if (r) exportRoute(r); }
+function dlConfig(id) { const r = getRoutes().find(r => r.id === id); if (r) exportConfig(r); }
+function exportCurrentDraw() {
+    if (state.drawPoints.length < 2) { alert('当前没有可导出的路线'); return; }
+    exportRoute({ name: 'current_route', points: state.drawPoints, speed: state.drawSpeed });
+}
+
+// ============================================================
+//  事件绑定
+// ============================================================
+document.getElementById('btn-checkin').addEventListener('click', doCheckin);
+document.getElementById('btn-fav').addEventListener('click', addFavorite);
+document.getElementById('btn-copy').addEventListener('click', copyCoord);
+document.getElementById('btn-records').addEventListener('click', openDrawer);
+document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+document.querySelectorAll('.drawer-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// ============================================================
+//  内置路线
+// ============================================================
+const BUILTIN_ROUTE_BD09 = [
+    {"lng":"120.7335575167566","lat":"30.52802386594508"},{"lng":"120.7335664998117","lat":"30.527949984828833"},{"lng":"120.73357997439435","lat":"30.527887769107984"},{"lng":"120.73361590661474","lat":"30.527825553346897"},{"lng":"120.7336653134178","lat":"30.527771114522935"},{"lng":"120.73372370327594","lat":"30.527720564158813"},{"lng":"120.73379107618919","lat":"30.527689456229226"},{"lng":"120.73387641521265","lat":"30.527662236782586"},{"lng":"120.73397073729119","lat":"30.52765057130309"},{"lng":"120.73407404242484","lat":"30.527646682809618"},{"lng":"120.73416387297584","lat":"30.527677790753035"},{"lng":"120.73428514421968","lat":"30.52773611811983"},{"lng":"120.73436150018803","lat":"30.52781388788721"},{"lng":"120.73441539851864","lat":"30.527922765455916"},{"lng":"120.73444234768392","lat":"30.52803941985705"},{"lng":"120.73445133073903","lat":"30.528156074116726"},{"lng":"120.73445582226658","lat":"30.5283038359759"},{"lng":"120.73446031379413","lat":"30.528420489914918"},{"lng":"120.73446031379413","lat":"30.52852158988096"},{"lng":"120.73446480532168","lat":"30.528618801286576"},{"lng":"120.73446480532168","lat":"30.528719901044198"},{"lng":"120.73445582226658","lat":"30.52881322380307"},{"lng":"120.73442887310128","lat":"30.528902658028688"},{"lng":"120.73439294088088","lat":"30.52898820373192"},{"lng":"120.73434353407784","lat":"30.529034864992525"},{"lng":"120.73427616116459","lat":"30.529081526230495"},{"lng":"120.73420429672379","lat":"30.52912429901208"},{"lng":"120.73414590686563","lat":"30.529143741179244"},{"lng":"120.73408302547993","lat":"30.52915929491014"},{"lng":"120.73399319492894","lat":"30.52915540647765"},{"lng":"120.73390785590549","lat":"30.52915540647765"},{"lng":"120.73383599146469","lat":"30.529135964312847"},{"lng":"120.733773110079","lat":"30.529108745275526"},{"lng":"120.73372370327594","lat":"30.529065972487018"},{"lng":"120.73365633036269","lat":"30.529003757487974"},{"lng":"120.73361590661474","lat":"30.528925988682573"},{"lng":"120.7335754828668","lat":"30.528855996703964"},{"lng":"120.7335664998117","lat":"30.528782116226836"},{"lng":"120.7335575167566","lat":"30.528719901044198"},{"lng":"120.7335575167566","lat":"30.52863435510235"},{"lng":"120.7335575167566","lat":"30.528541032169947"},{"lng":"120.7335575167566","lat":"30.528451597608097"},{"lng":"120.7335485337015","lat":"30.528350497568482"},{"lng":"120.73355302522906","lat":"30.528261062829475"},{"lng":"120.7335575167566","lat":"30.52818329342363"},{"lng":"120.73356200828415","lat":"30.528128854802127"}
+];
+
+// ============================================================
+//  启动
+// ============================================================
+initMap();
+
+(function loadBuiltinRoute() {
+    const wgsPoints = BUILTIN_ROUTE_BD09.map(p => {
+        const w = CoordUtil.bd09ToWgs84(parseFloat(p.lng), parseFloat(p.lat));
+        return { lng: w.lng, lat: w.lat };
+    });
+    const routes = getRoutes();
+    if (!routes.some(r => r.name === 'HNroute (内置)')) {
+        routes.unshift({
+            id: 1, name: 'HNroute (内置)',
+            points: wgsPoints,
+            pointsBd09: BUILTIN_ROUTE_BD09.map(p => ({ lng: parseFloat(p.lng), lat: parseFloat(p.lat) })),
+            speed: 3.3,
+            distance: Math.round(CoordUtil.routeDistance(wgsPoints)),
+            createdAt: '内置路线', imported: true
+        });
+        saveRoutes(routes);
+    }
+    displayRoute(wgsPoints, true);
+    setMode('draw');
+    state.drawSpeed = 3.3; speedSlider.value = 3.3; speedVal.textContent = '3.3';
+    updateDrawStats();
+})();
+</script>
+</body>
+</html>
