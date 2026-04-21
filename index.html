@@ -119,9 +119,9 @@
 
         .device-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            max-width: 720px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -621,15 +621,15 @@
 
         /* ===== Responsive ===== */
         @media (max-width: 640px) {
-            .device-grid { grid-template-columns: 1fr; max-width: 360px; }
+            .device-grid { grid-template-columns: repeat(2, 1fr); max-width: 400px; }
             .landing h1 { font-size: 28px; }
             .landing .subtitle { font-size: 15px; }
             .map-container { height: 400px; }
             .draw-actions { flex-wrap: wrap; }
         }
 
-        @media (min-width: 641px) and (max-width: 768px) {
-            .device-grid { grid-template-columns: repeat(3, 1fr); }
+        @media (min-width: 641px) and (max-width: 900px) {
+            .device-grid { grid-template-columns: repeat(2, 1fr); max-width: 500px; }
         }
 
         /* Scrollbar */
@@ -662,8 +662,8 @@
                             <rect width="12" height="20" x="6" y="2" rx="2"/><path d="M12 18h.01"/>
                         </svg>
                     </div>
-                    <h3>iOS 17+</h3>
-                    <p>iPhone / iPad<br>iOS 17, 18, 26</p>
+                    <h3>iOS (系统 17+)</h3>
+                    <p>iPhone / iPad<br>系统版本 iOS 17, 18, 26</p>
                     <span class="device-badge ready">可用</span>
                 </div>
 
@@ -674,21 +674,33 @@
                             <rect width="12" height="20" x="6" y="2" rx="2"/><path d="M12 18h.01"/>
                         </svg>
                     </div>
-                    <h3>iOS 17 以下</h3>
-                    <p>iPhone 6s 等<br>iOS 14 - 16</p>
+                    <h3>iOS (系统 17 以下)</h3>
+                    <p>iPhone 6s 等<br>系统版本 iOS 14 - 16</p>
                     <span class="device-badge soon">敬请期待</span>
                 </div>
 
-                <!-- Android -->
-                <div class="device-card" onclick="showScreen('screen-android')">
+                <!-- Android Phone -->
+                <div class="device-card" onclick="showScreen('screen-android-phone')">
                     <div class="device-icon android">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect width="14" height="16" x="5" y="6" rx="2"/><path d="M9 2l1 4"/><path d="M14 2l1 4"/><path d="M9 22v-2"/><path d="M15 22v-2"/>
+                            <rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>
                         </svg>
                     </div>
-                    <h3>Android</h3>
-                    <p>安卓手机 / 模拟器<br>Android 11+</p>
+                    <h3>Android 手机</h3>
+                    <p>安卓真机<br>系统版本 Android 11+</p>
                     <span class="device-badge ready">可用</span>
+                </div>
+
+                <!-- Emulator -->
+                <div class="device-card" onclick="showScreen('screen-android-emu')">
+                    <div class="device-icon android">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>
+                        </svg>
+                    </div>
+                    <h3>电脑模拟器</h3>
+                    <p>无需手机, 电脑直接运行<br>支持 Keep</p>
+                    <span class="device-badge ready">推荐</span>
                 </div>
             </div>
         </div>
@@ -705,19 +717,19 @@
                 </svg>
             </button>
             <div class="tut-header-info">
-                <h2>iOS 17+ 虚拟跑步</h2>
-                <p>iPhone / iPad | iOS 17, 18, 26</p>
+                <h2>iOS 虚拟跑步 (系统 17+)</h2>
+                <p>iPhone / iPad | 系统版本 iOS 17, 18, 26</p>
             </div>
         </div>
 
         <div class="tut-body">
-            <!-- Step 1: Prerequisites -->
-            <div class="step open" data-step="1">
+            <!-- Quick Start -->
+            <div class="step open" data-step="ios-quick">
                 <div class="step-header" onclick="toggleStep(this)">
                     <div class="step-number">1</div>
                     <div class="step-header-text">
-                        <h3>环境准备</h3>
-                        <p>安装必要的软件和工具</p>
+                        <h3>一键部署</h3>
+                        <p>复制命令到终端执行, 自动完成下载和安装</p>
                     </div>
                     <div class="step-toggle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -725,51 +737,56 @@
                 </div>
                 <div class="step-content">
                     <div class="step-inner">
-                        <h4>前置条件</h4>
+                        <h4>前置要求</h4>
                         <ul>
-                            <li>一台电脑 (Windows / macOS / Linux 均可)</li>
-                            <li>iPhone 或 iPad, 系统版本 >= iOS 17</li>
-                            <li>一根数据线连接手机和电脑</li>
-                            <li>已安装 <strong>Python 3.12+</strong></li>
-                            <li>已安装 <strong>uv</strong> 或 <strong>pip3</strong> (任选其一)</li>
+                            <li>iPhone / iPad, <strong>系统版本 >= iOS 17</strong></li>
+                            <li>一台电脑 + 一根数据线</li>
+                            <li>已安装 <a href="https://www.python.org/downloads/" target="_blank">Python 3.12+</a> (安装时勾选 Add to PATH)</li>
+                            <li>Windows 用户需安装 <strong>iTunes</strong> (提供 iPhone USB 驱动, 命令会自动安装)</li>
                         </ul>
 
-                        <div class="info-box">
-                            <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                            <p><strong>Windows 用户</strong>: 必须安装 iTunes, 否则无法识别 iOS 设备。</p>
+                        <div class="platform-tabs" data-group="ios-quick">
+                            <button class="platform-tab active" onclick="switchPlatform(this, 'ios-quick')">Windows</button>
+                            <button class="platform-tab" onclick="switchPlatform(this, 'ios-quick')">macOS / Linux</button>
                         </div>
-
-                        <h4>安装 Python</h4>
-                        <p>如果你还没有安装 Python, 请前往 <a href="https://www.python.org/downloads/" target="_blank">python.org</a> 下载安装 (建议 3.13 版本)。安装时请勾选 "Add Python to PATH"。</p>
-
-                        <h4>安装 uv (推荐)</h4>
-                        <div class="platform-tabs" data-group="uv-install">
-                            <button class="platform-tab active" onclick="switchPlatform(this, 'uv-install')">Windows</button>
-                            <button class="platform-tab" onclick="switchPlatform(this, 'uv-install')">macOS / Linux</button>
-                        </div>
-                        <div class="platform-content" data-group="uv-install" data-platform="Windows">
+                        <div class="platform-content" data-group="ios-quick" data-platform="Windows">
+                            <div class="info-box red">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                <p>必须<strong>以管理员身份</strong>打开 PowerShell (右键 -> 以管理员身份运行)</p>
+                            </div>
                             <div class="code-block">
                                 <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
-                                <span class="cmd">powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"</span>
+                                <span class="comment"># 安装 iTunes + uv + 克隆项目 + 安装依赖 + 运行</span><br>
+                                <span class="cmd">winget install --id Apple.iTunes --accept-source-agreements --accept-package-agreements && powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex" && git clone https://github.com/BiancoChiu/iOSRealRun-cli-18.git && cd iOSRealRun-cli-18 && uv sync && uv run main.py</span>
                             </div>
                         </div>
-                        <div class="platform-content" data-group="uv-install" data-platform="macOS / Linux" style="display:none">
+                        <div class="platform-content" data-group="ios-quick" data-platform="macOS / Linux" style="display:none">
                             <div class="code-block">
                                 <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
-                                <span class="cmd">curl -LsSf https://astral.sh/uv/install.sh | sh</span>
+                                <span class="comment"># 安装 uv + 克隆项目 + 安装依赖 + 运行</span><br>
+                                <span class="cmd">curl -LsSf https://astral.sh/uv/install.sh | sh && git clone https://github.com/BiancoChiu/iOSRealRun-cli-18.git && cd iOSRealRun-cli-18 && uv sync && sudo uv run main.py</span>
                             </div>
+                        </div>
+
+                        <div class="info-box blue" style="margin-top: 12px">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <p>首次运行会自动下载依赖, 之后再次运行只需复制下方命令:</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 8px">
+                            <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
+                            <span class="cmd">cd iOSRealRun-cli-18 && uv run main.py</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 2: Download & Install -->
-            <div class="step" data-step="2">
+            <!-- Step 2: Usage -->
+            <div class="step" data-step="ios-usage">
                 <div class="step-header" onclick="toggleStep(this)">
                     <div class="step-number">2</div>
                     <div class="step-header-text">
-                        <h3>下载工具</h3>
-                        <p>获取 iOSRealRun 并安装依赖</p>
+                        <h3>使用说明</h3>
+                        <p>连接设备, 开始模拟跑步</p>
                     </div>
                     <div class="step-toggle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -777,46 +794,34 @@
                 </div>
                 <div class="step-content">
                     <div class="step-inner">
-                        <h4>克隆项目</h4>
-                        <div class="code-block">
-                            <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
-                            <span class="cmd">git clone https://github.com/BiancoChiu/iOSRealRun-cli-18.git</span><br>
-                            <span class="cmd">cd iOSRealRun-cli-18</span>
-                        </div>
+                        <h4>操作流程</h4>
+                        <ol>
+                            <li>用数据线将 iPhone/iPad 连接电脑, 点击<strong>信任此电脑</strong></li>
+                            <li>运行上方命令后, 程序会自动开始模拟跑步</li>
+                            <li>项目目录中已内置路线 (<code>HNroute.txt</code>), 可直接使用</li>
+                            <li>按 <strong>Ctrl+C</strong> 停止模拟</li>
+                        </ol>
 
-                        <h4>安装依赖</h4>
-                        <div class="platform-tabs" data-group="dep-install">
-                            <button class="platform-tab active" onclick="switchPlatform(this, 'dep-install')">uv (推荐)</button>
-                            <button class="platform-tab" onclick="switchPlatform(this, 'dep-install')">pip</button>
-                        </div>
-                        <div class="platform-content" data-group="dep-install" data-platform="uv (推荐)">
-                            <div class="code-block">
-                                <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
-                                <span class="cmd">uv sync</span>
-                            </div>
-                        </div>
-                        <div class="platform-content" data-group="dep-install" data-platform="pip" style="display:none">
-                            <div class="code-block">
-                                <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
-                                <span class="cmd">pip3 install -r requirements.txt</span>
-                            </div>
-                        </div>
+                        <h4>注意事项</h4>
+                        <ul>
+                            <li><strong>请勿直接关闭窗口</strong>, 否则 GPS 定位无法恢复 (重启手机可修复)</li>
+                            <li>Windows 提示"无设备连接"时, 请确认已安装 iTunes</li>
+                            <li>确保只连接<strong>一台</strong> iOS 设备</li>
+                        </ul>
 
-                        <div class="info-box blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                            <p>安装完成后，项目目录中会有 <code>main.py</code>、<code>config.yaml</code>、<code>HNroute.txt</code> 等文件。</p>
-                        </div>
+                        <h4>自定义路线 (可选)</h4>
+                        <p>如需修改路线, 可导出路线文件替换项目中的 <code>HNroute.txt</code> 和 <code>config.yaml</code>。</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 3: Route Planning -->
+            <!-- Step 3: Route Planning (collapsed) -->
             <div class="step" data-step="3">
                 <div class="step-header" onclick="toggleStep(this)">
                     <div class="step-number">3</div>
                     <div class="step-header-text">
-                        <h3>规划路线</h3>
-                        <p>在地图上绘制跑步路线并导出</p>
+                        <h3>自定义路线 (可选)</h3>
+                        <p>在地图上绘制路线并导出文件</p>
                     </div>
                     <div class="step-toggle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -824,222 +829,72 @@
                 </div>
                 <div class="step-content">
                     <div class="step-inner">
-                        <p>选择路线获取方式: 可以直接使用我们提供的内置路线, 也可以在地图上手绘自定义路线。</p>
+                        <p>默认已内置浙江大学海宁校区操场路线, 如需自定义可在下方地图绘制并导出。</p>
 
-                        <!-- Mode selector -->
-                        <div class="route-mode-selector">
-                            <div class="route-mode-card" id="mode-builtin" onclick="selectRouteMode('builtin')">
-                                <div class="mode-icon icon-builtin">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        <div class="map-container">
+                            <div class="map-toolbar">
+                                <div class="map-search">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                    </svg>
+                                    <input type="text" id="search-input" placeholder="输入经纬度 (如: 120.73,30.52)" />
                                 </div>
-                                <h4>使用内置路线</h4>
-                                <p>自动导入预设跑步路线<br>快速上手, 无需手动绘制</p>
+                                <button class="map-btn active" id="btn-draw" title="绘制模式">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>
+                                    </svg>
+                                </button>
                             </div>
-                            <div class="route-mode-card" id="mode-draw" onclick="selectRouteMode('draw')">
-                                <div class="mode-icon icon-draw">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg>
+                            <div id="map"></div>
+                            <div class="preview-bar hidden" id="preview-bar">
+                                <div class="preview-pulse"></div>
+                                <div class="preview-info">
+                                    <div class="title">路线预览中</div>
+                                    <div class="detail" id="preview-detail">距离: 0m | 用时: 0s</div>
                                 </div>
-                                <h4>手绘自定义路线</h4>
-                                <p>在地图上自由绘制路线<br>完全自定义跑步轨迹</p>
-                            </div>
-                        </div>
-
-                        <!-- Builtin mode content -->
-                        <div class="route-mode-content" id="content-builtin">
-                            <div class="info-box blue">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                <p>内置路线已自动加载到地图上 (HNroute, 47 个路线点)。你可以预览路线效果, 满意后直接导出文件使用。</p>
-                            </div>
-
-                            <div class="map-container">
-                                <div class="map-toolbar">
-                                    <div class="map-search">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                                        </svg>
-                                        <input type="text" id="search-input" placeholder="输入经纬度 (如: 120.73,30.52)" />
-                                    </div>
-                                </div>
-                                <div id="map"></div>
-                                <div class="preview-bar hidden" id="preview-bar">
-                                    <div class="preview-pulse"></div>
-                                    <div class="preview-info">
-                                        <div class="title">路线预览中</div>
-                                        <div class="detail" id="preview-detail">距离: 0m | 用时: 0s</div>
-                                    </div>
-                                    <button class="preview-stop" onclick="stopPreview()">停止</button>
-                                </div>
-                            </div>
-
-                            <div class="draw-controls">
-                                <div class="draw-stats">
-                                    <div class="draw-stat">
-                                        <div class="label">路线点数</div>
-                                        <div><span class="value" id="draw-points">0</span></div>
-                                    </div>
-                                    <div class="draw-stat">
-                                        <div class="label">总距离</div>
-                                        <div><span class="value" id="draw-distance">0</span><span class="unit"> m</span></div>
-                                    </div>
-                                    <div class="draw-stat">
-                                        <div class="label">预计用时</div>
-                                        <div><span class="value" id="draw-time">0:00</span></div>
-                                    </div>
-                                </div>
-                                <div class="draw-speed-row">
-                                    <label>速度</label>
-                                    <input type="range" id="draw-speed" min="1" max="10" step="0.1" value="3.3" />
-                                    <div class="speed-val"><span id="draw-speed-val">3.3</span> m/s</div>
-                                </div>
-                                <div class="draw-actions">
-                                    <button class="draw-btn primary" onclick="drawPreview()">预览动画</button>
-                                    <button class="draw-btn success" onclick="exportBuiltinRoute()">导出 txt</button>
-                                    <button class="draw-btn" onclick="exportBuiltinConfig()">导出 config</button>
-                                </div>
+                                <button class="preview-stop" onclick="stopPreview()">停止</button>
                             </div>
                         </div>
 
-                        <!-- Draw mode content -->
-                        <div class="route-mode-content" id="content-draw">
-                            <div class="info-box blue">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                <p>在地图上<strong>依次点击</strong>添加路线点, 绘制你想要的跑步路线。也可以点击"导入"按钮从文件导入已有路线。</p>
-                            </div>
-
-                            <div class="map-container">
-                                <div class="map-toolbar">
-                                    <div class="map-search">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-                                        </svg>
-                                        <input type="text" id="search-input-draw" placeholder="输入经纬度 (如: 120.73,30.52)" />
-                                    </div>
-                                    <button class="map-btn active" id="btn-draw" title="绘制模式">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>
-                                        </svg>
-                                    </button>
+                        <div class="draw-controls">
+                            <div class="draw-stats">
+                                <div class="draw-stat">
+                                    <div class="label">路线点数</div>
+                                    <div><span class="value" id="draw-points">0</span></div>
                                 </div>
-                                <div id="map-draw"></div>
-                                <div class="preview-bar hidden" id="preview-bar-draw">
-                                    <div class="preview-pulse"></div>
-                                    <div class="preview-info">
-                                        <div class="title">路线预览中</div>
-                                        <div class="detail" id="preview-detail-draw">距离: 0m | 用时: 0s</div>
-                                    </div>
-                                    <button class="preview-stop" onclick="stopPreviewDraw()">停止</button>
+                                <div class="draw-stat">
+                                    <div class="label">总距离</div>
+                                    <div><span class="value" id="draw-distance">0</span><span class="unit"> m</span></div>
+                                </div>
+                                <div class="draw-stat">
+                                    <div class="label">预计用时</div>
+                                    <div><span class="value" id="draw-time">0:00</span></div>
                                 </div>
                             </div>
-
-                            <div class="draw-controls">
-                                <div class="draw-stats">
-                                    <div class="draw-stat">
-                                        <div class="label">路线点数</div>
-                                        <div><span class="value" id="draw-points-draw">0</span></div>
-                                    </div>
-                                    <div class="draw-stat">
-                                        <div class="label">总距离</div>
-                                        <div><span class="value" id="draw-distance-draw">0</span><span class="unit"> m</span></div>
-                                    </div>
-                                    <div class="draw-stat">
-                                        <div class="label">预计用时</div>
-                                        <div><span class="value" id="draw-time-draw">0:00</span></div>
-                                    </div>
-                                </div>
-                                <div class="draw-speed-row">
-                                    <label>速度</label>
-                                    <input type="range" id="draw-speed-draw" min="1" max="10" step="0.1" value="3.3" />
-                                    <div class="speed-val"><span id="draw-speed-val-draw">3.3</span> m/s</div>
-                                </div>
-                                <div class="draw-actions">
-                                    <button class="draw-btn" onclick="drawUndo()">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                                        撤销
-                                    </button>
-                                    <button class="draw-btn danger" onclick="drawClear()">清空</button>
-                                    <button class="draw-btn" onclick="document.getElementById('file-import').click()">导入</button>
-                                    <button class="draw-btn primary" onclick="drawPreviewDraw()">预览</button>
-                                    <button class="draw-btn success" onclick="drawSave()">保存</button>
-                                </div>
+                            <div class="draw-speed-row">
+                                <label>速度</label>
+                                <input type="range" id="draw-speed" min="1" max="10" step="0.1" value="3.3" />
+                                <div class="speed-val"><span id="draw-speed-val">3.3</span> m/s</div>
                             </div>
-
-                            <h4>已保存的路线</h4>
-                            <div class="route-list" id="route-list"></div>
+                            <div class="draw-actions">
+                                <button class="draw-btn" onclick="drawUndo()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                                    撤销
+                                </button>
+                                <button class="draw-btn danger" onclick="drawClear()">清空</button>
+                                <button class="draw-btn" onclick="document.getElementById('file-import').click()">导入</button>
+                                <button class="draw-btn primary" onclick="drawPreview()">预览</button>
+                                <button class="draw-btn success" onclick="drawSave()">保存</button>
+                            </div>
                         </div>
 
-                        <div class="info-box blue" style="margin-top: 16px" id="export-hint">
+                        <h4>已保存的路线</h4>
+                        <div class="route-list" id="route-list"></div>
+
+                        <div class="info-box blue" style="margin-top: 16px">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                            <p>导出 <strong>路线 txt 文件</strong> 和 <strong>config.yaml</strong>, 将两个文件放入 iOSRealRun 项目目录中即可使用。</p>
+                            <p>导出 <strong>路线 txt</strong> 和 <strong>config.yaml</strong>, 放入 iOSRealRun-cli-18 目录中替换同名文件即可。</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Step 4: Connect & Run -->
-            <div class="step" data-step="4">
-                <div class="step-header" onclick="toggleStep(this)">
-                    <div class="step-number">4</div>
-                    <div class="step-header-text">
-                        <h3>连接设备并运行</h3>
-                        <p>将 iPhone 连接电脑, 开始模拟跑步</p>
-                    </div>
-                    <div class="step-toggle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </div>
-                </div>
-                <div class="step-content">
-                    <div class="step-inner">
-                        <h4>连接设备</h4>
-                        <ul>
-                            <li>用数据线将 iPhone/iPad 连接到电脑</li>
-                            <li>解锁设备, 如果弹出"信任此电脑", 点击<strong>信任</strong></li>
-                            <li>确保只有<strong>一台</strong> iOS 设备连接到电脑</li>
-                        </ul>
-
-                        <h4>运行程序</h4>
-                        <div class="platform-tabs" data-group="run-cmd">
-                            <button class="platform-tab active" onclick="switchPlatform(this, 'run-cmd')">Windows</button>
-                            <button class="platform-tab" onclick="switchPlatform(this, 'run-cmd')">macOS / Linux</button>
-                        </div>
-                        <div class="platform-content" data-group="run-cmd" data-platform="Windows">
-                            <div class="info-box red">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                                <p>Windows 必须<strong>以管理员身份</strong>打开终端 (右键 CMD 或 PowerShell -> 以管理员身份运行)</p>
-                            </div>
-                            <div class="code-block">
-                                <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
-                                <span class="comment"># 进入项目目录</span><br>
-                                <span class="cmd">cd iOSRealRun-cli-18</span><br><br>
-                                <span class="comment"># 使用 uv 运行</span><br>
-                                <span class="cmd">uv run main.py</span><br><br>
-                                <span class="comment"># 或使用 pip 安装后直接运行</span><br>
-                                <span class="cmd">python main.py</span>
-                            </div>
-                        </div>
-                        <div class="platform-content" data-group="run-cmd" data-platform="macOS / Linux" style="display:none">
-                            <div class="code-block">
-                                <button class="copy-code-btn" onclick="copyCode(this)">复制</button>
-                                <span class="comment"># 进入项目目录</span><br>
-                                <span class="cmd">cd iOSRealRun-cli-18</span><br><br>
-                                <span class="comment"># 使用 uv 运行 (需要 sudo)</span><br>
-                                <span class="cmd">sudo uv run main.py</span><br><br>
-                                <span class="comment"># 或使用 pip</span><br>
-                                <span class="cmd">sudo python main.py</span>
-                            </div>
-                        </div>
-
-                        <div class="info-box">
-                            <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                            <p>需要管理员/root 权限是因为需要创建 TUN 网络设备。</p>
-                        </div>
-
-                        <h4>注意事项</h4>
-                        <ul>
-                            <li>程序会无限循环模拟跑步, 按 <strong>Ctrl+C</strong> 终止</li>
-                            <li><strong>请勿直接关闭窗口</strong>, 否则 GPS 定位无法恢复</li>
-                            <li>如果定位未恢复, 重启手机即可</li>
-                            <li>如果一直提示"无设备连接" (Windows), 请确保已安装 iTunes</li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -1055,14 +910,14 @@
                 <rect width="12" height="20" x="6" y="2" rx="2"/><path d="M12 18h.01"/>
             </svg>
         </div>
-        <h2>iOS 17 以下版本</h2>
+        <h2>iOS 系统 17 以下版本</h2>
         <p>该功能正在开发中, 敬请期待...</p>
         <button class="btn-back-home" onclick="showScreen('screen-landing')">返回首页</button>
     </div>
 </div>
 
-<!-- ===== Screen 4: Android Tutorial ===== -->
-<div class="screen" id="screen-android">
+<!-- ===== Screen 4a: Android Phone ===== -->
+<div class="screen" id="screen-android-phone">
     <div class="tutorial-page">
         <div class="tut-header">
             <button class="tut-back" onclick="showScreen('screen-landing')">
@@ -1071,19 +926,19 @@
                 </svg>
             </button>
             <div class="tut-header-info">
-                <h2>Android 虚拟跑步</h2>
-                <p>安卓手机 / 模拟器 | Android 11+</p>
+                <h2>Android 手机虚拟跑步</h2>
+                <p>安卓真机 | 系统版本 Android 11+</p>
             </div>
         </div>
 
         <div class="tut-body">
-            <!-- Step 1: Prerequisites -->
-            <div class="step open" data-step="a1">
+            <!-- Step 1: Download -->
+            <div class="step open" data-step="ap1">
                 <div class="step-header" onclick="toggleStep(this)">
                     <div class="step-number">1</div>
                     <div class="step-header-text">
-                        <h3>环境准备</h3>
-                        <p>下载 FakeGPS 应用并准备运行环境</p>
+                        <h3>下载安装</h3>
+                        <p>下载 FakeGPS 并安装到手机</p>
                     </div>
                     <div class="step-toggle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -1091,45 +946,25 @@
                 </div>
                 <div class="step-content">
                     <div class="step-inner">
-                        <h4>选择运行方式</h4>
-                        <div class="platform-tabs" data-group="android-env">
-                            <button class="platform-tab active" onclick="switchPlatform(this, 'android-env')">真机</button>
-                            <button class="platform-tab" onclick="switchPlatform(this, 'android-env')">模拟器</button>
-                        </div>
-                        <div class="platform-content" data-group="android-env" data-platform="真机">
-                            <h4>前置条件</h4>
-                            <ul>
-                                <li>Android 手机, 系统版本 <strong>Android 11</strong> 及以上</li>
-                                <li>无需 Root</li>
-                                <li>支持小米运动健康、华为运动健康等</li>
-                            </ul>
-                            <div class="info-box">
-                                <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                                <p>真机上<strong>不支持 Keep</strong>。如需在 Keep 上使用, 请选择模拟器方式。</p>
-                            </div>
-                        </div>
-                        <div class="platform-content" data-group="android-env" data-platform="模拟器" style="display:none">
-                            <h4>推荐模拟器</h4>
-                            <ul>
-                                <li><strong>BlueStacks 5</strong> (推荐, 选择 Android 11 系统)</li>
-                                <li>雷电模拟器 (Android 11 版本)</li>
-                                <li>MuMu 模拟器 12</li>
-                            </ul>
-                            <div class="info-box blue">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                <p>模拟器上<strong>支持 Keep</strong>、小米运动健康等 App。模拟器无真实 GPS 硬件, 不会出现定位冲突, 稳定性更好。主流模拟器<strong>无需额外配置</strong>, 点击开始即可运行。</p>
-                            </div>
-                        </div>
+                        <h4>前置条件</h4>
+                        <ul>
+                            <li>Android 手机, 系统版本 <strong>Android 11</strong> 及以上</li>
+                            <li>无需 Root</li>
+                        </ul>
+                        <h4>下载 APK</h4>
+                        <a href="fakegps-v0.1.apk" download class="draw-btn success" style="display:inline-block;text-decoration:none;text-align:center;margin:8px 0 4px;">下载 FakeGPS.apk (5.4MB)</a>
+                        <p style="font-size:13px;color:var(--text-tertiary);margin-top:4px;">在手机浏览器中打开本页下载, 或电脑下载后传到手机安装</p>
 
-                        <h4>下载 FakeGPS APK</h4>
-                        <a href="fakegps-v0.1.apk" download class="draw-btn success" style="display:inline-block;text-decoration:none;text-align:center;margin:8px 0 4px;" id="apk-download-btn">下载 FakeGPS.apk (5.4MB)</a>
-                        <p style="font-size:13px;color:var(--text-tertiary);margin-top:4px;">下载后安装到手机或模拟器中</p>
+                        <div class="info-box" style="margin-top: 12px">
+                            <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                            <p>真机上<strong>不支持 Keep</strong>。如需在 Keep 上使用, 请返回首页选择<strong>电脑模拟器</strong>方案。</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 2: Device Config -->
-            <div class="step" data-step="a2">
+            <!-- Step 2: Config -->
+            <div class="step" data-step="ap2">
                 <div class="step-header" onclick="toggleStep(this)">
                     <div class="step-number">2</div>
                     <div class="step-header-text">
@@ -1142,58 +977,33 @@
                 </div>
                 <div class="step-content">
                     <div class="step-inner">
-                        <div class="platform-tabs" data-group="android-config">
-                            <button class="platform-tab active" onclick="switchPlatform(this, 'android-config')">真机</button>
-                            <button class="platform-tab" onclick="switchPlatform(this, 'android-config')">模拟器</button>
-                        </div>
-                        <div class="platform-content" data-group="android-config" data-platform="真机">
-                            <h4>开启开发者选项</h4>
-                            <ol>
-                                <li>打开 <strong>设置</strong> > <strong>关于手机</strong></li>
-                                <li>连续点击 <strong>"版本号"</strong> 7 次, 直到提示"已进入开发者模式"</li>
-                                <li>返回设置, 找到 <strong>开发者选项</strong> (部分手机在"系统" 或"更多设置"中)</li>
-                            </ol>
-
-                            <h4>设置模拟位置应用</h4>
-                            <ol>
-                                <li>在 <strong>开发者选项</strong> 中找到 <strong>"选择模拟位置信息应用"</strong></li>
-                                <li>选择 <strong>FakeGPS</strong></li>
-                            </ol>
-
-                            <div class="info-box">
-                                <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                                <p>如果列表中没有 FakeGPS, 请确保已安装 APK 且版本为 Android 11+。</p>
-                            </div>
-
-                            <h4>推荐设置</h4>
-                            <ul>
-                                <li>使用 <strong>悬浮窗</strong> 方式前台运行, 后台运行可能不稳定</li>
-                                <li>关闭系统的省电优化 / 后台限制 (针对 FakeGPS)</li>
-                            </ul>
-                        </div>
-                        <div class="platform-content" data-group="android-config" data-platform="模拟器" style="display:none">
-                            <div class="info-box blue">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                                <p>主流模拟器 (BlueStacks、雷电、MuMu) <strong>无需手动配置开发者选项</strong>。安装 APK 后直接打开 FakeGPS, 点击开始即可运行模拟。</p>
-                            </div>
-                            <h4>模拟器安装 APK</h4>
-                            <ul>
-                                <li>方式一: 直接将 APK 文件<strong>拖入</strong>模拟器窗口</li>
-                                <li>方式二: 使用模拟器自带的文件管理器安装</li>
-                                <li>方式三: 通过 ADB 命令 <code>adb install FakeGPS.apk</code></li>
-                            </ul>
-                        </div>
+                        <h4>开启开发者选项</h4>
+                        <ol>
+                            <li>打开 <strong>设置</strong> > <strong>关于手机</strong></li>
+                            <li>连续点击 <strong>"版本号"</strong> 7 次, 直到提示"已进入开发者模式"</li>
+                            <li>返回设置, 找到 <strong>开发者选项</strong> (部分手机在"系统"或"更多设置"中)</li>
+                        </ol>
+                        <h4>设置模拟位置应用</h4>
+                        <ol>
+                            <li>在 <strong>开发者选项</strong> 中找到 <strong>"选择模拟位置信息应用"</strong></li>
+                            <li>选择 <strong>FakeGPS</strong></li>
+                        </ol>
+                        <h4>推荐设置</h4>
+                        <ul>
+                            <li>使用 <strong>悬浮窗</strong> 方式前台运行, 后台运行可能不稳定</li>
+                            <li>关闭系统的省电优化 / 后台限制 (针对 FakeGPS)</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            <!-- Step 3: Route Planning -->
+            <!-- Step 3: Route -->
             <div class="step" data-step="a3">
                 <div class="step-header" onclick="toggleStep(this)">
                     <div class="step-number">3</div>
                     <div class="step-header-text">
-                        <h3>规划路线</h3>
-                        <p>在地图上绘制跑步路线并导出 KML 文件</p>
+                        <h3>规划路线 (可选)</h3>
+                        <p>自定义路线并导出 KML 文件</p>
                     </div>
                     <div class="step-toggle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -1201,12 +1011,7 @@
                 </div>
                 <div class="step-content">
                     <div class="step-inner">
-                        <p>在地图上绘制你的跑步路线, 然后导出为 KML 文件传到手机或模拟器中。</p>
-
-                        <div class="info-box blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                            <p>在地图上<strong>依次点击</strong>添加路线点, 绘制你想要的跑步路线。FakeGPS App 内已内置大连理工大学操场 3km 路线, 如只需默认路线可跳过此步。</p>
-                        </div>
+                        <p>已内置浙江大学海宁校区操场路线, 如只需默认路线可跳过此步。如需自定义, 在下方地图绘制后导出 KML。</p>
 
                         <div class="map-container">
                             <div class="map-toolbar">
@@ -1214,7 +1019,7 @@
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
                                     </svg>
-                                    <input type="text" id="search-input-android" placeholder="输入经纬度 (如: 121.80,39.08)" />
+                                    <input type="text" id="search-input-android" placeholder="输入经纬度 (如: 120.73,30.52)" />
                                 </div>
                                 <button class="map-btn active" id="btn-draw-android" title="绘制模式" onclick="toggleDrawModeAndroid()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1266,19 +1071,19 @@
 
                         <div class="info-box blue" style="margin-top: 16px">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                            <p>导出的 <strong>KML 文件</strong>可通过文件管理器传到手机, 或直接在模拟器的共享文件夹中使用。在 FakeGPS App 中点击"选择 KML 文件"加载路线。</p>
+                            <p>将导出的 KML 文件传到手机, 在 FakeGPS 中点击 <strong>"选择 KML 文件"</strong> 加载。</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Step 4: Run -->
-            <div class="step" data-step="a4">
+            <div class="step" data-step="ap4">
                 <div class="step-header" onclick="toggleStep(this)">
                     <div class="step-number">4</div>
                     <div class="step-header-text">
                         <h3>运行模拟</h3>
-                        <p>启动 FakeGPS 并开始虚拟跑步</p>
+                        <p>启动 FakeGPS 开始虚拟跑步</p>
                     </div>
                     <div class="step-toggle">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -1286,33 +1091,189 @@
                 </div>
                 <div class="step-content">
                     <div class="step-inner">
-                        <h4>操作步骤</h4>
                         <ol>
-                            <li>打开 <strong>FakeGPS</strong> App, 授予定位权限</li>
-                            <li>App 会自动加载内置的大工 3km 路线; 如需自定义路线, 点击 <strong>"选择 KML 文件"</strong> 加载你导出的 KML</li>
-                            <li>调整参数:
-                                <ul>
-                                    <li><strong>速度</strong>: 默认 3.0 m/s (建议 2.5 - 4.0 m/s)</li>
-                                    <li><strong>圈数</strong>: 根据需要调整</li>
-                                    <li><strong>广播间隔</strong>: 默认 0.3 秒, 一般无需修改</li>
-                                </ul>
-                            </li>
-                            <li>点击 <strong>"开始"</strong>, FakeGPS 开始注入模拟定位</li>
-                            <li>切换到运动 App (如 Keep、小米运动健康), 开始跑步记录</li>
-                            <li>等待模拟完成, 运动 App 会记录完整的跑步轨迹</li>
+                            <li>打开 <strong>FakeGPS</strong>, 授予定位权限</li>
+                            <li>调整速度 (建议 2.5 - 4.0 m/s)、圈数</li>
+                            <li>点击 <strong>"开始"</strong></li>
+                            <li>切换到运动 App (小米运动健康、华为运动健康等), 开始记录</li>
                         </ol>
-
-                        <div class="info-box">
-                            <svg class="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                            <p><strong>真机用户</strong>: 推荐使用悬浮窗方式前台运行 FakeGPS, 后台运行可能导致模拟中断。</p>
-                        </div>
-
                         <h4>注意事项</h4>
                         <ul>
-                            <li>模拟结束后, FakeGPS 会自动停止位置注入, 定位恢复正常</li>
-                            <li>如定位未恢复, 关闭 FakeGPS 或重启手机/模拟器即可</li>
-                            <li>速度不宜设置过快 (>5 m/s), 否则可能被运动 App 判定为异常</li>
-                            <li>真机不支持 Keep, 模拟器支持 Keep</li>
+                            <li>推荐使用<strong>悬浮窗</strong>前台运行, 后台可能中断</li>
+                            <li>如定位未恢复, 关闭 FakeGPS 或重启手机即可</li>
+                            <li>速度不宜超过 5 m/s, 否则可能被判定异常</li>
+                            <li>真机<strong>不支持 Keep</strong>, 支持小米运动健康、华为运动健康</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Screen 4b: Android Emulator ===== -->
+<div class="screen" id="screen-android-emu">
+    <div class="tutorial-page">
+        <div class="tut-header">
+            <button class="tut-back" onclick="showScreen('screen-landing')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m15 18-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="tut-header-info">
+                <h2>电脑模拟器虚拟跑步</h2>
+                <p>无需手机 | 支持 Keep | 稳定性更好</p>
+            </div>
+        </div>
+
+        <div class="tut-body">
+            <!-- Step 1: Install Emulator -->
+            <div class="step open" data-step="ae1">
+                <div class="step-header" onclick="toggleStep(this)">
+                    <div class="step-number">1</div>
+                    <div class="step-header-text">
+                        <h3>安装模拟器</h3>
+                        <p>下载并安装 Android 模拟器</p>
+                    </div>
+                    <div class="step-toggle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-inner">
+                        <h4>推荐模拟器 (任选其一)</h4>
+                        <ul>
+                            <li><strong>BlueStacks 5</strong> (推荐, 选择 Android 11 系统)</li>
+                            <li>雷电模拟器 (选择 Android 11 版本)</li>
+                            <li>MuMu 模拟器 12</li>
+                        </ul>
+                        <div class="info-box blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <p>模拟器无真实 GPS 硬件, 不会出现定位冲突, <strong>稳定性比真机更好</strong>。且模拟器上<strong>支持 Keep</strong>、小米运动健康等所有主流运动 App。</p>
+                        </div>
+
+                        <h4>下载 FakeGPS APK</h4>
+                        <a href="fakegps-v0.1.apk" download class="draw-btn success" style="display:inline-block;text-decoration:none;text-align:center;margin:8px 0 4px;">下载 FakeGPS.apk (5.4MB)</a>
+
+                        <h4 style="margin-top: 16px">安装 APK 到模拟器</h4>
+                        <ul>
+                            <li>方式一: 直接将 APK 文件<strong>拖入</strong>模拟器窗口</li>
+                            <li>方式二: 使用模拟器自带的文件管理器安装</li>
+                            <li>方式三: <code>adb install FakeGPS.apk</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Route -->
+            <div class="step" data-step="ae2">
+                <div class="step-header" onclick="toggleStep(this)">
+                    <div class="step-number">2</div>
+                    <div class="step-header-text">
+                        <h3>规划路线 (可选)</h3>
+                        <p>自定义路线并导出 KML 文件</p>
+                    </div>
+                    <div class="step-toggle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-inner">
+                        <p>已内置浙江大学海宁校区操场路线, 如只需默认路线可跳过此步。如需自定义, 在下方地图绘制后导出 KML。</p>
+
+                        <div class="map-container">
+                            <div class="map-toolbar">
+                                <div class="map-search">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                                    </svg>
+                                    <input type="text" id="search-input-emu" placeholder="输入经纬度 (如: 120.73,30.52)" />
+                                </div>
+                                <button class="map-btn active" id="btn-draw-emu" title="绘制模式" onclick="toggleDrawModeEmu()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="map-emu"></div>
+                            <div class="preview-bar hidden" id="preview-bar-emu">
+                                <div class="preview-pulse"></div>
+                                <div class="preview-info">
+                                    <div class="title">路线预览中</div>
+                                    <div class="detail" id="preview-detail-emu">距离: 0m | 用时: 0s</div>
+                                </div>
+                                <button class="preview-stop" onclick="stopPreviewEmu()">停止</button>
+                            </div>
+                        </div>
+
+                        <div class="draw-controls">
+                            <div class="draw-stats">
+                                <div class="draw-stat">
+                                    <div class="label">路线点数</div>
+                                    <div><span class="value" id="draw-points-emu">0</span></div>
+                                </div>
+                                <div class="draw-stat">
+                                    <div class="label">总距离</div>
+                                    <div><span class="value" id="draw-distance-emu">0</span><span class="unit"> m</span></div>
+                                </div>
+                                <div class="draw-stat">
+                                    <div class="label">预计用时</div>
+                                    <div><span class="value" id="draw-time-emu">0:00</span></div>
+                                </div>
+                            </div>
+                            <div class="draw-speed-row">
+                                <label>速度</label>
+                                <input type="range" id="draw-speed-emu" min="1" max="10" step="0.1" value="3.0" />
+                                <div class="speed-val"><span id="draw-speed-emu-val">3.0</span> m/s</div>
+                            </div>
+                            <div class="draw-actions">
+                                <button class="draw-btn" onclick="emuDrawUndo()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                                    撤销
+                                </button>
+                                <button class="draw-btn danger" onclick="emuDrawClear()">清空</button>
+                                <button class="draw-btn primary" onclick="emuDrawPreview()">预览</button>
+                                <button class="draw-btn success" onclick="emuExportKML()">导出 KML</button>
+                            </div>
+                        </div>
+
+                        <div class="info-box blue" style="margin-top: 16px">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <p>将 KML 文件放入模拟器的共享文件夹, 在 FakeGPS 中点击 <strong>"选择 KML 文件"</strong> 加载。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Run -->
+            <div class="step" data-step="ae3">
+                <div class="step-header" onclick="toggleStep(this)">
+                    <div class="step-number">3</div>
+                    <div class="step-header-text">
+                        <h3>运行模拟</h3>
+                        <p>在模拟器中启动 FakeGPS</p>
+                    </div>
+                    <div class="step-toggle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-inner">
+                        <div class="info-box blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <p>主流模拟器<strong>无需配置开发者选项</strong>, 安装 FakeGPS 后直接使用。</p>
+                        </div>
+                        <ol>
+                            <li>在模拟器中打开 <strong>FakeGPS</strong>, 授予定位权限</li>
+                            <li>调整速度 (建议 2.5 - 4.0 m/s)、圈数</li>
+                            <li>点击 <strong>"开始"</strong></li>
+                            <li>在模拟器中打开运动 App (Keep、小米运动健康等), 开始记录</li>
+                        </ol>
+                        <h4>注意事项</h4>
+                        <ul>
+                            <li>如定位未恢复, 关闭 FakeGPS 或重启模拟器即可</li>
+                            <li>速度不宜超过 5 m/s, 否则可能被判定异常</li>
+                            <li>模拟器支持 <strong>Keep</strong>、小米运动健康、华为运动健康等所有主流 App</li>
                         </ul>
                     </div>
                 </div>
@@ -1335,6 +1296,7 @@
 // ============================================================
 let mapInitialized = false;
 let androidMapInitialized = false;
+let emuMapInitialized = false;
 
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1347,11 +1309,17 @@ function showScreen(id) {
     if (id === 'screen-ios17' && mapInitialized && state.map) {
         setTimeout(() => state.map.invalidateSize(), 150);
     }
-    if (id === 'screen-android' && !androidMapInitialized) {
+    if (id === 'screen-android-phone' && !androidMapInitialized) {
         setTimeout(() => { initAndroidMap(); androidMapInitialized = true; }, 100);
     }
-    if (id === 'screen-android' && androidMapInitialized && state.androidMap) {
+    if (id === 'screen-android-phone' && androidMapInitialized && state.androidMap) {
         setTimeout(() => state.androidMap.invalidateSize(), 150);
+    }
+    if (id === 'screen-android-emu' && !emuMapInitialized) {
+        setTimeout(() => { initEmuMap(); emuMapInitialized = true; }, 100);
+    }
+    if (id === 'screen-android-emu' && emuMapInitialized && state.emuMap) {
+        setTimeout(() => state.emuMap.invalidateSize(), 150);
     }
 }
 
@@ -1368,12 +1336,19 @@ function toggleStep(header) {
     if (step.dataset.step === '3' && mapInitialized && state.map) {
         setTimeout(() => state.map.invalidateSize(), 150);
     }
-    // Initialize Android map when step a3 opens
+    // Initialize Android phone map when step a3 opens
     if (step.dataset.step === 'a3' && !androidMapInitialized) {
         setTimeout(() => { initAndroidMap(); androidMapInitialized = true; }, 100);
     }
     if (step.dataset.step === 'a3' && androidMapInitialized && state.androidMap) {
         setTimeout(() => state.androidMap.invalidateSize(), 150);
+    }
+    // Initialize emulator map when step ae2 opens
+    if (step.dataset.step === 'ae2' && !emuMapInitialized) {
+        setTimeout(() => { initEmuMap(); emuMapInitialized = true; }, 100);
+    }
+    if (step.dataset.step === 'ae2' && emuMapInitialized && state.emuMap) {
+        setTimeout(() => state.emuMap.invalidateSize(), 150);
     }
 }
 
@@ -1489,10 +1464,14 @@ const state = {
     map: null,
     drawPoints: [], drawMarkers: [], drawPolyline: null, drawSpeed: 3.3,
     previewTimer: null, previewMarker: null,
-    // Android map state
+    // Android phone map state
     androidMap: null, androidDrawMode: true,
     androidPoints: [], androidMarkers: [], androidPolyline: null, androidSpeed: 3.0,
     androidPreviewTimer: null, androidPreviewMarker: null,
+    // Emulator map state
+    emuMap: null, emuDrawMode: true,
+    emuPoints: [], emuMarkers: [], emuPolyline: null, emuSpeed: 3.0,
+    emuPreviewTimer: null, emuPreviewMarker: null,
 };
 
 // ============================================================
@@ -1930,6 +1909,52 @@ function initAndroidMap() {
     });
 
     document.getElementById('btn-draw-android').classList.add('active');
+
+    // Load built-in ZJU Haining route
+    loadAndroidBuiltinRoute();
+}
+
+function loadAndroidBuiltinRoute() {
+    const wgsPoints = BUILTIN_ROUTE_BD09.map(p => {
+        const w = CoordUtil.bd09ToWgs84(parseFloat(p.lng), parseFloat(p.lat));
+        return { lng: w.lng, lat: w.lat };
+    });
+    displayAndroidRoute(wgsPoints);
+}
+
+function displayAndroidRoute(points) {
+    // Clear existing
+    state.androidMarkers.forEach(m => state.androidMap.removeLayer(m));
+    state.androidMarkers = [];
+    if (state.androidPolyline) { state.androidMap.removeLayer(state.androidPolyline); state.androidPolyline = null; }
+    if (!points.length) return;
+
+    // Draw polyline
+    const latlngs = points.map(p => [p.lat, p.lng]);
+    state.androidPolyline = L.polyline(latlngs, {
+        color: '#10B981', weight: 4, opacity: 0.85,
+        lineJoin: 'round', lineCap: 'round'
+    }).addTo(state.androidMap);
+
+    // Start marker
+    const startM = L.circleMarker([points[0].lat, points[0].lng], {
+        radius: 9, color: 'white', weight: 2, fillColor: '#10B981', fillOpacity: 1
+    }).addTo(state.androidMap).bindTooltip('起点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+    state.androidMarkers.push(startM);
+
+    // End marker
+    if (points.length > 1) {
+        const end = points[points.length - 1];
+        const endM = L.circleMarker([end.lat, end.lng], {
+            radius: 9, color: 'white', weight: 2, fillColor: '#F43F5E', fillOpacity: 1
+        }).addTo(state.androidMap).bindTooltip('终点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+        state.androidMarkers.push(endM);
+    }
+
+    // Fit bounds and set state
+    state.androidMap.fitBounds(L.polyline(latlngs).getBounds(), { padding: [80, 80] });
+    state.androidPoints = points;
+    updateAndroidStats();
 }
 
 function toggleDrawModeAndroid() {
@@ -2042,6 +2067,177 @@ function stopPreviewAndroid() {
 
 function androidExportKML() {
     downloadKML(state.androidPoints, 'FakeRun_route');
+}
+
+// ============================================================
+//  Emulator Map
+// ============================================================
+function initEmuMap() {
+    const defaultCenter = { lng: 120.7270, lat: 30.5225 };
+    state.emuMap = L.map('map-emu', {
+        center: [defaultCenter.lat, defaultCenter.lng],
+        zoom: 16, zoomControl: false
+    });
+    L.control.zoom({ position: 'bottomright' }).addTo(state.emuMap);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20, subdomains: 'abcd'
+    }).addTo(state.emuMap);
+
+    state.emuMap.on('click', (e) => {
+        if (state.emuDrawMode) addEmuPoint(e.latlng.lng, e.latlng.lat);
+    });
+
+    document.getElementById('search-input-emu').addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const parts = e.target.value.trim().split(/[,，\s]+/).map(Number);
+        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            state.emuMap.setView([parts[1], parts[0]], 16);
+            e.target.blur();
+        }
+    });
+
+    const speedSlider = document.getElementById('draw-speed-emu');
+    const speedVal = document.getElementById('draw-speed-emu-val');
+    speedSlider.addEventListener('input', () => {
+        state.emuSpeed = parseFloat(speedSlider.value);
+        speedVal.textContent = state.emuSpeed.toFixed(1);
+        updateEmuStats();
+    });
+
+    document.getElementById('btn-draw-emu').classList.add('active');
+    loadEmuBuiltinRoute();
+}
+
+function loadEmuBuiltinRoute() {
+    const wgsPoints = BUILTIN_ROUTE_BD09.map(p => {
+        const w = CoordUtil.bd09ToWgs84(parseFloat(p.lng), parseFloat(p.lat));
+        return { lng: w.lng, lat: w.lat };
+    });
+    displayEmuRoute(wgsPoints);
+}
+
+function displayEmuRoute(points) {
+    state.emuMarkers.forEach(m => state.emuMap.removeLayer(m));
+    state.emuMarkers = [];
+    if (state.emuPolyline) { state.emuMap.removeLayer(state.emuPolyline); state.emuPolyline = null; }
+    if (!points.length) return;
+    const latlngs = points.map(p => [p.lat, p.lng]);
+    state.emuPolyline = L.polyline(latlngs, {
+        color: '#10B981', weight: 4, opacity: 0.85, lineJoin: 'round', lineCap: 'round'
+    }).addTo(state.emuMap);
+    const startM = L.circleMarker([points[0].lat, points[0].lng], {
+        radius: 9, color: 'white', weight: 2, fillColor: '#10B981', fillOpacity: 1
+    }).addTo(state.emuMap).bindTooltip('起点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+    state.emuMarkers.push(startM);
+    if (points.length > 1) {
+        const end = points[points.length - 1];
+        const endM = L.circleMarker([end.lat, end.lng], {
+            radius: 9, color: 'white', weight: 2, fillColor: '#F43F5E', fillOpacity: 1
+        }).addTo(state.emuMap).bindTooltip('终点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+        state.emuMarkers.push(endM);
+    }
+    state.emuMap.fitBounds(L.polyline(latlngs).getBounds(), { padding: [80, 80] });
+    state.emuPoints = points;
+    updateEmuStats();
+}
+
+function toggleDrawModeEmu() {
+    state.emuDrawMode = !state.emuDrawMode;
+    document.getElementById('btn-draw-emu').classList.toggle('active', state.emuDrawMode);
+}
+
+function addEmuPoint(lng, lat) {
+    state.emuPoints.push({ lng, lat });
+    const isStart = state.emuPoints.length === 1;
+    const marker = L.circleMarker([lat, lng], {
+        radius: isStart ? 9 : 5, color: 'white', weight: 2,
+        fillColor: isStart ? '#10B981' : '#6366F1', fillOpacity: 1
+    }).addTo(state.emuMap);
+    if (isStart) marker.bindTooltip('起点', { permanent: true, direction: 'top', offset: [0, -10], className: '' });
+    state.emuMarkers.push(marker);
+    updateEmuPolyline();
+    updateEmuStats();
+}
+
+function updateEmuPolyline() {
+    if (state.emuPolyline) state.emuMap.removeLayer(state.emuPolyline);
+    if (state.emuPoints.length < 2) return;
+    const latlngs = state.emuPoints.map(p => [p.lat, p.lng]);
+    state.emuPolyline = L.polyline(latlngs, {
+        color: '#10B981', weight: 4, opacity: 0.85, lineJoin: 'round', lineCap: 'round'
+    }).addTo(state.emuMap);
+}
+
+function updateEmuStats() {
+    const n = state.emuPoints.length;
+    const dist = CoordUtil.routeDistance(state.emuPoints);
+    const time = dist / state.emuSpeed;
+    const min = Math.floor(time / 60), sec = Math.floor(time % 60);
+    document.getElementById('draw-points-emu').textContent = n;
+    document.getElementById('draw-distance-emu').textContent = dist < 1000 ? Math.round(dist) : (dist / 1000).toFixed(2) + 'k';
+    document.getElementById('draw-time-emu').textContent = `${min}:${String(sec).padStart(2, '0')}`;
+}
+
+function emuDrawUndo() {
+    if (!state.emuPoints.length) return;
+    state.emuPoints.pop();
+    const m = state.emuMarkers.pop();
+    if (m) state.emuMap.removeLayer(m);
+    updateEmuPolyline(); updateEmuStats();
+}
+
+function emuDrawClear() {
+    if (!state.emuPoints.length) return;
+    state.emuPoints = [];
+    state.emuMarkers.forEach(m => state.emuMap.removeLayer(m));
+    state.emuMarkers = [];
+    if (state.emuPolyline) { state.emuMap.removeLayer(state.emuPolyline); state.emuPolyline = null; }
+    updateEmuStats();
+}
+
+function emuDrawPreview() {
+    if (state.emuPoints.length < 2) { alert('至少需要2个路线点'); return; }
+    stopPreviewEmu();
+    const points = state.emuPoints, speed = state.emuSpeed;
+    document.getElementById('preview-bar-emu').classList.remove('hidden');
+    const dt = 0.2, interpolated = [];
+    for (let i = 0; i < points.length - 1; i++) {
+        const a = points[i], b = points[i + 1], d = CoordUtil.distance(a, b);
+        const steps = Math.max(1, Math.round(d / (speed * dt)));
+        for (let j = 0; j < steps; j++) {
+            const t = j / steps;
+            interpolated.push({ lng: a.lng + (b.lng - a.lng) * t, lat: a.lat + (b.lat - a.lat) * t });
+        }
+    }
+    interpolated.push(points[points.length - 1]);
+    const icon = L.divIcon({
+        html: '<div style="width:16px;height:16px;background:#F43F5E;border:3px solid white;border-radius:50%;box-shadow:0 3px 10px rgba(244,63,94,0.4)"></div>',
+        iconSize: [16, 16], iconAnchor: [8, 8], className: ''
+    });
+    state.emuPreviewMarker = L.marker([interpolated[0].lat, interpolated[0].lng], { icon }).addTo(state.emuMap);
+    let idx = 0;
+    const totalDist = CoordUtil.routeDistance(points), startTime = Date.now();
+    state.emuPreviewTimer = setInterval(() => {
+        idx++;
+        if (idx >= interpolated.length) { stopPreviewEmu(); return; }
+        const p = interpolated[idx];
+        state.emuPreviewMarker.setLatLng([p.lat, p.lng]);
+        const elapsed = (Date.now() - startTime) / 1000;
+        const coveredDist = Math.round(totalDist * idx / interpolated.length);
+        const min = Math.floor(elapsed / 60), sec = Math.floor(elapsed % 60);
+        document.getElementById('preview-detail-emu').textContent =
+            `距离: ${coveredDist}m  |  用时: ${min}:${String(sec).padStart(2, '0')}  |  ${speed}m/s`;
+    }, dt * 1000);
+}
+
+function stopPreviewEmu() {
+    if (state.emuPreviewTimer) { clearInterval(state.emuPreviewTimer); state.emuPreviewTimer = null; }
+    if (state.emuPreviewMarker) { state.emuMap.removeLayer(state.emuPreviewMarker); state.emuPreviewMarker = null; }
+    document.getElementById('preview-bar-emu').classList.add('hidden');
+}
+
+function emuExportKML() {
+    downloadKML(state.emuPoints, 'FakeRun_route');
 }
 
 // ============================================================
